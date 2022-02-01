@@ -1,6 +1,7 @@
 import sys
 
-from scanner import Scanner
+from pylox.scanner import Scanner
+
 
 class Lox:
     def __init__(self):
@@ -35,7 +36,7 @@ class Lox:
     def error(self, line: int, message: str):
         self.report(line, "", message)
 
-    def report(self, line: int, where: str, message: str):
+    def report(line: int, where: str, message: str):
         print(f"[line: {line}] Error {where}: {message}")
         self.hadError = True
 

@@ -1,10 +1,14 @@
-from token_type import TokenType
+from pylox.token_type import TokenType
 from typing import Union
 
 
 class Token:
     def __init__(
-        self, token_type: TokenType, lexeme: str, literal: Union[str, float, None], line: int
+        self,
+        token_type: TokenType,
+        lexeme: str,
+        literal: Union[str, float, None],
+        line: int,
     ):
         self.type = token_type
         self.lexeme = lexeme
