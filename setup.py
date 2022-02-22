@@ -11,6 +11,6 @@ setup(
     packages=find_packages(),    
     install_requires=[],
     entry_points = {
-        'console_scripts': ['pylox=pylox.pylox:main'],
+        'console_scripts': ['pylox=pylox.lox:main'],
     }
 )
