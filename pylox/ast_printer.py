@@ -4,8 +4,8 @@ from expr import Visitor, Expr, Binary, Grouping, Literal, Unary
 from token import Token
 from token_type import TokenType
 
-class ASTPrinter(Visitor):
 
+class ASTPrinter(Visitor):
     def print(self, expr: Expr):
         return expr.accept(self)
 
@@ -25,29 +25,24 @@ class ASTPrinter(Visitor):
 
     def parenthesize(self, name, *exprs):
 
-        string = "(" 
+        string = "("
         string += name
         for expr in exprs:
             string += " "
             string += expr.accept(self)
-        
+
         string += ")"
         return string
+
 
 if __name__ == "__main__":
 
     expression = Binary(
-        Unary(
-            Token(TokenType.MINUS, "-", None, 1),
-            Literal(123)
-        ),
+        Unary(Token(TokenType.MINUS, "-", None, 1), Literal(123)),
         Token(TokenType.STAR, "*", None, 1),
-        Grouping(
-            Literal(45.67)
-        )
+        Grouping(Literal(45.67)),
     )
 
     printer = ASTPrinter()
 
     print(printer.print(expression))
-
