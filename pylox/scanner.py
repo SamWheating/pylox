@@ -108,8 +108,9 @@ class Scanner:
 
                 elif self.is_valid_identifier(c):
                     self.identifier()
-
-                print(self.line, "Unexpected Character.")
+                
+                else:
+                    print(self.line, "Unexpected Character.")
 
     def match(self, expected) -> bool:
 
