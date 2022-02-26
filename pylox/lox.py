@@ -2,12 +2,16 @@ import sys
 
 from pylox.scanner import Scanner
 from pylox.parser import Parser
+from pylox.interpreter import Interpreter
 from pylox.ast_printer import ASTPrinter
+from pylox.exceptions import LoxRuntimeError
 
 
 class Lox:
     def __init__(self):
-        self.hadError = False
+        self.had_error = False
+        self.had_runtime_error = False
+        self.interpreter = Interpreter(self)
 
     def run_file(self, file_name: str):
 
@@ -16,8 +20,10 @@ class Lox:
 
         self.run(text)
 
-        if self.hadError():
+        if self.had_error:
             sys.exit(65)
+        if self.had_runtime_error:
+            sys.exit(70)
 
     def run_prompt(self):
 
@@ -26,28 +32,31 @@ class Lox:
             if line is None:
                 break
             self.run(line)
-            self.hadError = False
+            self.had_error = False
 
     def run(self, source: str):
         scanner = Scanner(source, self)
         tokens = scanner.scan_tokens()
-        print([t.type for t in tokens])
         parser = Parser(tokens, self)
         expression = parser.parse()
 
-        if self.hadError:
+        if self.had_error:
             return
-    
-        print(ASTPrinter().print(expression))
 
-
+        # print(ASTPrinter().print(expression))
+        self.interpreter.interpret(expression)
 
     def error(self, line: int, message: str):
         self.report(line, "", message)
 
+    def runtime_error(self, error: LoxRuntimeError):
+        print(str(error))
+        print(f"[line: {error.token.line}]")
+        self.had_runtime_error = True
+
     def report(self, line: int, where: str, message: str):
         print(f"[line: {line}] Error {where}: {message}")
-        self.hadError = True
+        self.had_error = True
 
 
 def main():

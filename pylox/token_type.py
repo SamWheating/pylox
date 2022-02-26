@@ -51,6 +51,7 @@ class TokenType(Enum):
 
     EOF = auto()
 
+
 KEYWORDS = [
     TokenType.CLASS,
     TokenType.FOR,
@@ -59,5 +60,5 @@ KEYWORDS = [
     TokenType.PRINT,
     TokenType.RETURN,
     TokenType.VAR,
-    TokenType.WHILE
+    TokenType.WHILE,
 ]

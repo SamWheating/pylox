@@ -3,8 +3,8 @@ from pylox.token import Token
 from pylox.expr import Binary, Expr, Unary, Literal, Grouping
 from pylox.exceptions import ParseError
 
-class Parser():
 
+class Parser:
     def __init__(self, tokens, runtime):
         self.tokens = tokens
         self.current = 0
@@ -31,7 +31,12 @@ class Parser():
     def comparison(self) -> Expr:
 
         expr = self.term()
-        while self.match(TokenType.GREATER, TokenType.GREATER_EQUAL, TokenType.LESS, TokenType.LESS_EQUAL):
+        while self.match(
+            TokenType.GREATER,
+            TokenType.GREATER_EQUAL,
+            TokenType.LESS,
+            TokenType.LESS_EQUAL,
+        ):
             operator = self.previous()
             right = self.term()
             expr = Binary(expr, operator, right)
@@ -53,7 +58,7 @@ class Parser():
             operator = self.previous()
             right = self.factor()
             expr = Binary(expr, operator, right)
-        
+
         return expr
 
     def factor(self):
@@ -64,7 +69,7 @@ class Parser():
             operator = self.previous()
             right = self.unary()
             expr = Binary(expr, operator, right)
-        
+
         return expr
 
     def unary(self):
@@ -78,9 +83,12 @@ class Parser():
 
     def primary(self) -> Token:
 
-        if self.match(TokenType.FALSE): return Literal(False)
-        if self.match(TokenType.TRUE): return Literal(True)
-        if self.match(TokenType.NIL): return Literal(None)
+        if self.match(TokenType.FALSE):
+            return Literal(False)
+        if self.match(TokenType.TRUE):
+            return Literal(True)
+        if self.match(TokenType.NIL):
+            return Literal(None)
 
         if self.match(TokenType.NUMBER, TokenType.STRING):
             return Literal(self.previous().literal)
@@ -132,5 +140,5 @@ class Parser():
                 return
             if self.peek.type() in KEYWORDS:
                 return
-            
+
             self.advance()

@@ -109,7 +109,7 @@ class Scanner:
 
                 elif self.is_valid_identifier(c):
                     self.identifier()
-                
+
                 else:
                     print(self.line, "Unexpected Character.")
 
