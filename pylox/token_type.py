@@ -50,3 +50,14 @@ class TokenType(Enum):
     WHILE = auto()
 
     EOF = auto()
+
+KEYWORDS = [
+    TokenType.CLASS,
+    TokenType.FOR,
+    TokenType.FUN,
+    TokenType.IF,
+    TokenType.PRINT,
+    TokenType.RETURN,
+    TokenType.VAR,
+    TokenType.WHILE
+]

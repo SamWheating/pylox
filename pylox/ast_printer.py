@@ -1,8 +1,8 @@
 # This is just a sample usage of the Visitor pattern for Expressions
 
-from expr import Visitor, Expr, Binary, Grouping, Literal, Unary
-from token import Token
-from token_type import TokenType
+from pylox.expr import Visitor, Expr, Binary, Grouping, Literal, Unary
+from pylox.token import Token
+from pylox.token_type import TokenType
 
 
 class ASTPrinter(Visitor):

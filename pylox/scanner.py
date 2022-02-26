@@ -25,12 +25,13 @@ class Scanner:
         "while": TokenType.WHILE,
     }
 
-    def __init__(self, source):
+    def __init__(self, source, runtime):
         self.source = source
         self.tokens = []
         self.start = 0
         self.current = 0
         self.line = 1
+        self.lox = runtime  # for passing errors back to the runtime
 
     def is_at_end(self) -> bool:
         return self.current >= len(self.source)
@@ -129,8 +130,8 @@ class Scanner:
             self.advance()
 
         if self.is_at_end():
-            # TODO: Propagate this error back up to the Lox Class without `raise`
-            raise Exception("Unterminated String")
+            self.lox.error(self.line, "unterminated string.")
+            return
 
         self.advance()
         value = self.source[self.start + 1 : self.current - 1]

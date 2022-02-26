@@ -1,27 +1,34 @@
-from token_type import TokenType
-from token import Token
-from expr import Binary, Expr, Unary, Literal, Grouping
+from pylox.token_type import TokenType, KEYWORDS
+from pylox.token import Token
+from pylox.expr import Binary, Expr, Unary, Literal, Grouping
+from pylox.exceptions import ParseError
 
 class Parser():
 
-    def __init__(self):
-        self.tokens = []
+    def __init__(self, tokens, runtime):
+        self.tokens = tokens
         self.current = 0
+        self.runtime = runtime
+
+    def parse(self):
+        try:
+            return self.expression()
+        except ParseError:
+            return None
 
     def expression(self) -> Expr:
         return self.equality()
 
     def equality(self) -> Expr:
         expr = self.comparison()
-        while self.match(TokenType.BANG_EQUAL, TokenType.EQUAL_EQUAL) {
+        while self.match(TokenType.BANG_EQUAL, TokenType.EQUAL_EQUAL):
             operator = self.previous()
             right = self.comparison()
             expr = Binary(expr, operator, right)
-        }
 
-        return operator
+        return expr
 
-    def comparison(self) -> Expr;
+    def comparison(self) -> Expr:
 
         expr = self.term()
         while self.match(TokenType.GREATER, TokenType.GREATER_EQUAL, TokenType.LESS, TokenType.LESS_EQUAL):
@@ -33,7 +40,7 @@ class Parser():
     def match(self, *types) -> bool:
 
         for t in types:
-            if check(t):
+            if self.check(t):
                 self.advance()
                 return True
 
@@ -51,7 +58,7 @@ class Parser():
 
     def factor(self):
 
-        expr = Unary()
+        expr = self.unary()
 
         while self.match(TokenType.SLASH, TokenType.STAR):
             operator = self.previous()
@@ -61,6 +68,7 @@ class Parser():
         return expr
 
     def unary(self):
+
         if self.match(TokenType.BANG, TokenType.MINUS):
             operator = self.previous()
             right = self.unary()
@@ -82,6 +90,8 @@ class Parser():
             self.consume(TokenType.RIGHT_PAREN, "Expect ')' after expression.")
             return Grouping(expr)
 
+        raise self.error(self.peek(), "Expect expression.")
+
     def check(self, t: Token) -> bool:
         if self.is_at_end():
             return False
@@ -89,22 +99,38 @@ class Parser():
 
     def advance(self) -> Token:
         if not self.is_at_end():
-            current += 1
-            return self.previous()
+            self.current += 1
+        return self.previous()
 
     def is_at_end(self) -> bool:
         return self.peek().type == TokenType.EOF
 
     def peek(self) -> Token:
-        return self.tokens.get(self.current)
+        return self.tokens[self.current]
 
     def previous(self) -> Token:
-        return self.tokens.get(self.current - 1)
+        return self.tokens[self.current - 1]
 
     def consume(self, t: TokenType, message: str) -> Token:
 
         if self.check(t):
             return self.advance()
 
-        raise Exception(message)
+        raise self.error(self.peek(), message)
 
+    def error(self, token: Token, message: str) -> None:
+        if token.type == TokenType.EOF:
+            self.runtime.report(token.line, "at end", message)
+        else:
+            self.runtime.report(token.line, f"at {token.lexeme}", message)
+        return ParseError()
+
+    def synchronize(self):
+        self.advance()
+        while not self.is_at_end():
+            if self.previous().type == token.SEMICOLON:
+                return
+            if self.peek.type() in KEYWORDS:
+                return
+            
+            self.advance()

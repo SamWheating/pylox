@@ -1,6 +1,8 @@
 import sys
 
 from pylox.scanner import Scanner
+from pylox.parser import Parser
+from pylox.ast_printer import ASTPrinter
 
 
 class Lox:
@@ -27,16 +29,23 @@ class Lox:
             self.hadError = False
 
     def run(self, source: str):
-        scanner = Scanner(source)
+        scanner = Scanner(source, self)
         tokens = scanner.scan_tokens()
+        print([t.type for t in tokens])
+        parser = Parser(tokens, self)
+        expression = parser.parse()
 
-        for token in tokens:
-            print(token)
+        if self.hadError:
+            return
+    
+        print(ASTPrinter().print(expression))
+
+
 
     def error(self, line: int, message: str):
         self.report(line, "", message)
 
-    def report(line: int, where: str, message: str):
+    def report(self, line: int, where: str, message: str):
         print(f"[line: {line}] Error {where}: {message}")
         self.hadError = True
 
