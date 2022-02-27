@@ -58,6 +58,8 @@ class Interpreter(Visitor):
                 return float(left) - float(right)
             case TokenType.SLASH:
                 self.check_number_operands(expr.operator, left, right)
+                if right == 0:
+                    raise LoxRuntimeError(expr.operator, "Runtime Error: Cannot Divide by zero.")
                 return float(left) / float(right)
             case TokenType.STAR:
                 self.check_number_operands(expr.operator, left, right)
@@ -66,7 +68,7 @@ class Interpreter(Visitor):
                 if (type(left) == type(right)) and type(left) in [str, float]:
                     return left + right
                 raise LoxRuntimeError(
-                    expr.operator, "Operands must be two numbers or two strings"
+                    expr.operator, "Runtime Error: Operands must be two numbers or two strings"
                 )
             case _:
                 pass  # TODO: Handle errors n stuff
