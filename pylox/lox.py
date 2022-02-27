@@ -29,12 +29,13 @@ class Lox:
 
         while True:
             line = input("> ")
-            if line is None:
+            if line in ["", "exit"]:
                 break
             self.run(line)
             self.had_error = False
 
     def run(self, source: str):
+
         scanner = Scanner(source, self)
         tokens = scanner.scan_tokens()
         parser = Parser(tokens, self)
@@ -44,7 +45,7 @@ class Lox:
             return
 
         # print(ASTPrinter().print(expression))
-        self.interpreter.interpret(expression)
+        print(self.interpreter.interpret(expression))
 
     def error(self, line: int, message: str):
         self.report(line, "", message)

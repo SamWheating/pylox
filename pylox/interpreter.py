@@ -11,7 +11,7 @@ class Interpreter(Visitor):
     def interpret(self, expression: Expr) -> None:
         try:
             value = self.evaluate(expression)
-            print(value)
+            return value
         except LoxRuntimeError as e:
             self.runtime.runtime_error(e)
 
@@ -22,7 +22,7 @@ class Interpreter(Visitor):
         return self.evaluate(expr.expression)
 
     def visit_unary_expr(self, expr) -> LoxObject:
-        right = evaluate(expr.right)
+        right = self.evaluate(expr.right)
 
         match expr.operator.type:
             case TokenType.BANG:

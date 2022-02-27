@@ -3,13 +3,16 @@ from pylox.scanner import Scanner
 from pylox.token_type import TokenType
 from pylox.lox import Lox
 
-RUNTIME=Lox()
-
 class TestScanner(unittest.TestCase):
+
+    def setUp(self):
+        self.runtime = Lox()
+        self.scanner = Scanner("", runtime=self.runtime)
+
     def test_scanner_simple_lexemes(self):
 
-        scanner = Scanner("()", runtime=RUNTIME)
-        tokens = scanner.scan_tokens()
+        self.scanner.source = "()"
+        tokens = self.scanner.scan_tokens()
 
         assert len(tokens) == 3
 
@@ -18,8 +21,8 @@ class TestScanner(unittest.TestCase):
 
     def test_scanner_two_character_lexemes(self):
 
-        scanner = Scanner("!=", runtime=RUNTIME)
-        tokens = scanner.scan_tokens()
+        self.scanner.source = "!="
+        tokens = self.scanner.scan_tokens()
 
         assert len(tokens) == 2
 
@@ -28,8 +31,8 @@ class TestScanner(unittest.TestCase):
 
     def test_scanner_spaces(self):
 
-        scanner = Scanner("!= >=", runtime=RUNTIME)
-        tokens = scanner.scan_tokens()
+        self.scanner.source = "!= >="
+        tokens = self.scanner.scan_tokens()
 
         assert len(tokens) == 3
 
@@ -38,8 +41,8 @@ class TestScanner(unittest.TestCase):
 
     def test_scanner_strings(self):
 
-        scanner = Scanner('"This is a String"', runtime=RUNTIME)
-        tokens = scanner.scan_tokens()
+        self.scanner.source = '"This is a String"'
+        tokens = self.scanner.scan_tokens()
 
         assert len(tokens) == 2
 
@@ -51,8 +54,8 @@ class TestScanner(unittest.TestCase):
 
     def test_scanner_numbers(self):
 
-        scanner = Scanner("13 19.1", runtime=RUNTIME)
-        tokens = scanner.scan_tokens()
+        self.scanner.source = "13 19.1"
+        tokens = self.scanner.scan_tokens()
 
         assert len(tokens) == 3
 
@@ -64,8 +67,8 @@ class TestScanner(unittest.TestCase):
 
     def test_scanner_comments(self):
 
-        scanner = Scanner("// This is just a big comment", runtime=RUNTIME)
-        tokens = scanner.scan_tokens()
+        self.scanner.source = "// This is just a big comment"
+        tokens = self.scanner.scan_tokens()
 
         assert len(tokens) == 1
 
@@ -74,8 +77,8 @@ class TestScanner(unittest.TestCase):
 
     def test_scanner_reserved_words(self):
 
-        scanner = Scanner("if true", runtime=RUNTIME)
-        tokens = scanner.scan_tokens()
+        self.scanner.source = "if true"
+        tokens = self.scanner.scan_tokens()
 
         assert len(tokens) == 3
 
@@ -84,8 +87,8 @@ class TestScanner(unittest.TestCase):
 
     def test_scanner_identifiers(self):
 
-        scanner = Scanner("my_identifier beep boop", runtime=RUNTIME)
-        tokens = scanner.scan_tokens()
+        self.scanner.source = "my_identifier beep boop"
+        tokens = self.scanner.scan_tokens()
 
         assert len(tokens) == 4
 
