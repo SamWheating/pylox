@@ -1,9 +1,10 @@
 from pylox.token_type import TokenType, KEYWORDS
 from pylox.token import Token
-from pylox.expr import Binary, Expr, Unary, Literal, Grouping, Variable, Assign
-from pylox.stmt import Stmt, Print, Expression, Var, Block
 from pylox.exceptions import ParseError
 from typing import List
+
+from pylox import stmt
+from pylox import expr
 
 class Parser:
     def __init__(self, tokens, runtime):
@@ -11,13 +12,13 @@ class Parser:
         self.current = 0
         self.runtime = runtime
 
-    def parse(self) -> List[Stmt]:
+    def parse(self) -> List[stmt.Stmt]:
         statements = []
         while not self.is_at_end():
             statements.append(self.declaration())
         return statements
 
-    def declaration(self) -> Stmt:
+    def declaration(self) -> stmt.Stmt:
         try:
             if self.match(TokenType.VAR):
                 return self.var_declaration()
@@ -26,69 +27,69 @@ class Parser:
             self.synchronize()
             return None
 
-    def expression(self) -> Expr:
+    def expression(self) -> expr.Expr:
         return self.assignment()
 
-    def assignment(self) -> Expr:
-        expr = self.equality()
+    def assignment(self) -> expr.Expr:
+        expression = self.equality()
 
         if self.match(TokenType.EQUAL):
-            equals = self.previous
+            equals = self.previous()
             value = self.assignment()
         
-            if isinstance(expr, Variable):
-                name = expr.name
-                return Assign(name, value)
+            if isinstance(expression, expr.Variable):
+                name = expression.name
+                return expr.Assign(name, value)
 
             self.error(equals, "Invalid assignment target")
         
-        return expr
+        return expression
 
-    def equality(self) -> Expr:
-        expr = self.comparison()
+    def equality(self) -> expr.Expr:
+        expression = self.comparison()
         while self.match(TokenType.BANG_EQUAL, TokenType.EQUAL_EQUAL):
             operator = self.previous()
             right = self.comparison()
-            expr = Binary(expr, operator, right)
+            expression = expr.Binary(expression, operator, right)
 
-        return expr
+        return expression
 
-    def statement(self) -> Stmt:
+    def statement(self) -> stmt.Stmt:
         if self.match(TokenType.PRINT):
             return self.print_statement()
         if self.match(TokenType.LEFT_BRACE):
-            return Block(self.block())
+            return stmt.Block(self.block())
         return self.expression_statement()
 
-    def block(self) -> List[Stmt]:
+    def block(self) -> List[stmt.Stmt]:
         statements = []
         while not self.check(TokenType.RIGHT_BRACE) and not self.is_at_end():
             statements.append(self.declaration())
         self.consume(TokenType.RIGHT_BRACE, "Expect '}' after block.")
         return statements
 
-    def print_statement(self) -> Stmt:
+    def print_statement(self) -> stmt.Stmt:
         value = self.expression()
         self.consume(TokenType.SEMICOLON, "Expect ';' after value.")
-        return Print(value)
+        return stmt.Print(value)
 
-    def expression_statement(self) -> Stmt:
-        expr = self.expression()
+    def expression_statement(self) -> stmt.Stmt:
+        expression = self.expression()
         self.consume(TokenType.SEMICOLON, "Expect ';' after expression.")
-        return Expression(expr)
+        return stmt.Expression(expression)
 
-    def var_declaration(self) -> Var:
+    def var_declaration(self) -> stmt.Var:
         name = self.consume(TokenType.IDENTIFIER, "Expect variable name.")
         initializer = None
         if self.match(TokenType.EQUAL):
             initializer = self.expression()
         
         self.consume(TokenType.SEMICOLON, "Expect ';' after variable declaration.")
-        return Var(name, initializer)
+        return stmt.Var(name, initializer)
 
-    def comparison(self) -> Expr:
+    def comparison(self) -> expr.Expr:
 
-        expr = self.term()
+        expression = self.term()
         while self.match(
             TokenType.GREATER,
             TokenType.GREATER_EQUAL,
@@ -97,8 +98,8 @@ class Parser:
         ):
             operator = self.previous()
             right = self.term()
-            expr = Binary(expr, operator, right)
-        return expr
+            expression = expr.Binary(expression, operator, right)
+        return expression
 
     def match(self, *types) -> bool:
 
@@ -111,53 +112,53 @@ class Parser:
 
     def term(self):
 
-        expr = self.factor()
+        expression = self.factor()
         while self.match(TokenType.MINUS, TokenType.PLUS):
             operator = self.previous()
             right = self.factor()
-            expr = Binary(expr, operator, right)
+            expression = expr.Binary(expression, operator, right)
 
-        return expr
+        return expression
 
     def factor(self):
 
-        expr = self.unary()
+        expression = self.unary()
 
         while self.match(TokenType.SLASH, TokenType.STAR):
             operator = self.previous()
             right = self.unary()
-            expr = Binary(expr, operator, right)
+            expression = expr.Binary(expression, operator, right)
 
-        return expr
+        return expression
 
     def unary(self):
 
         if self.match(TokenType.BANG, TokenType.MINUS):
             operator = self.previous()
             right = self.unary()
-            return Unary(operator, right)
+            return expr.Unary(operator, right)
 
         return self.primary()
 
     def primary(self) -> Token:
 
         if self.match(TokenType.FALSE):
-            return Literal(False)
+            return expr.Literal(False)
         if self.match(TokenType.TRUE):
-            return Literal(True)
+            return expr.Literal(True)
         if self.match(TokenType.NIL):
-            return Literal(None)
+            return expr.Literal(None)
 
         if self.match(TokenType.NUMBER, TokenType.STRING):
-            return Literal(self.previous().literal)
+            return expr.Literal(self.previous().literal)
 
         if self.match(TokenType.IDENTIFIER):
-            return Variable(self.previous())
+            return expr.Variable(self.previous())
 
         if self.match(TokenType.LEFT_PAREN):
-            expr = self.expression()
+            expression = self.expression()
             self.consume(TokenType.RIGHT_PAREN, "Expect ')' after expression.")
-            return Grouping(expr)
+            return expr.Grouping(expression)
 
         raise self.error(self.peek(), "Expect expression.")
 
