@@ -80,5 +80,6 @@ if __name__ == "__main__":
     define_ast(output_dir, "Stmt", [
         "Expression   : expression",
         "Print        : expression",
-        "Var          : name, initializer"
+        "Var          : name, initializer",
+        "Block        : statements"
     ])

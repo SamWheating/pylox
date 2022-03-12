@@ -1,7 +1,7 @@
 from pylox.token_type import TokenType, KEYWORDS
 from pylox.token import Token
 from pylox.expr import Binary, Expr, Unary, Literal, Grouping, Variable, Assign
-from pylox.stmt import Stmt, Print, Expression, Var
+from pylox.stmt import Stmt, Print, Expression, Var, Block
 from pylox.exceptions import ParseError
 from typing import List
 
@@ -56,7 +56,16 @@ class Parser:
     def statement(self) -> Stmt:
         if self.match(TokenType.PRINT):
             return self.print_statement()
+        if self.match(TokenType.LEFT_BRACE):
+            return Block(self.block())
         return self.expression_statement()
+
+    def block(self) -> List[Stmt]:
+        statements = []
+        while not self.check(TokenType.RIGHT_BRACE) and not self.is_at_end():
+            statements.append(self.declaration())
+        self.consume(TokenType.RIGHT_BRACE, "Expect '}' after block.")
+        return statements
 
     def print_statement(self) -> Stmt:
         value = self.expression()
@@ -64,7 +73,7 @@ class Parser:
         return Print(value)
 
     def expression_statement(self) -> Stmt:
-        expr = self.expression
+        expr = self.expression()
         self.consume(TokenType.SEMICOLON, "Expect ';' after expression.")
         return Expression(expr)
 
@@ -152,7 +161,7 @@ class Parser:
 
         raise self.error(self.peek(), "Expect expression.")
 
-    def check(self, t: Token) -> bool:
+    def check(self, t: TokenType) -> bool:
         if self.is_at_end():
             return False
         return self.peek().type == t

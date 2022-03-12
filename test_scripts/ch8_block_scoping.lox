@@ -1,0 +1,11 @@
+// should print 1,2,3
+var a = 3;
+{
+    var a = 1;
+    print a;
+    {
+        var a = 2;
+        print a;
+    }
+}
+print a;

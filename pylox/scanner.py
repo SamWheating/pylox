@@ -54,7 +54,7 @@ class Scanner:
                 self.add_token(TokenType.RIGHT_PAREN)
             case "{":
                 self.add_token(TokenType.LEFT_BRACE)
-            case "{":
+            case "}":
                 self.add_token(TokenType.RIGHT_BRACE)
             case ",":
                 self.add_token(TokenType.COMMA)
@@ -111,7 +111,7 @@ class Scanner:
                     self.identifier()
 
                 else:
-                    print(self.line, "Unexpected Character.")
+                    print(f"Unexpected Character {c} on line {self.line}")
 
     def match(self, expected) -> bool:
 

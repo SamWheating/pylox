@@ -82,7 +82,7 @@ class Interpreter(expr.Visitor, stmt.Visitor):
             case _:
                 pass  # TODO: Handle errors n stuff
 
-    def visit_expression_stmt(statement: stmt.Expression) -> None:
+    def visit_expression_stmt(self, statement: stmt.Expression) -> None:
         self.evaluate(statement.expression) 
 
     def visit_print_stmt(self, statement: stmt.Print) -> None:
@@ -98,6 +98,18 @@ class Interpreter(expr.Visitor, stmt.Visitor):
 
     def visit_variable_expr(self, expression: expr.Variable):
         return self.environment.get(expression.name)
+
+    def visit_block_stmt(self, stmt: stmt.Block) -> None:
+        self.execute_block(stmt.statements, Environment(enclosing=self.environment))
+
+    def execute_block(self, statements: List[stmt.Stmt], environment: Environment):
+        previous_env = self.environment
+        self.environment = environment
+        try:
+            for stmt in statements:
+                self.execute(stmt)
+        finally:
+            self.environment = previous_env
 
     def visit_assign_expr(self, expr: expr.Assign):
         value = self.evaluate(expr.value)
