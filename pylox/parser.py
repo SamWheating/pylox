@@ -1,8 +1,9 @@
 from pylox.token_type import TokenType, KEYWORDS
 from pylox.token import Token
-from pylox.expr import Binary, Expr, Unary, Literal, Grouping
+from pylox.expr import Binary, Expr, Unary, Literal, Grouping, Variable, Assign
+from pylox.stmt import Stmt, Print, Expression, Var
 from pylox.exceptions import ParseError
-
+from typing import List
 
 class Parser:
     def __init__(self, tokens, runtime):
@@ -10,14 +11,38 @@ class Parser:
         self.current = 0
         self.runtime = runtime
 
-    def parse(self):
+    def parse(self) -> List[Stmt]:
+        statements = []
+        while not self.is_at_end():
+            statements.append(self.declaration())
+        return statements
+
+    def declaration(self) -> Stmt:
         try:
-            return self.expression()
+            if self.match(TokenType.VAR):
+                return self.var_declaration()
+            return self.statement()
         except ParseError:
+            self.synchronize()
             return None
 
     def expression(self) -> Expr:
-        return self.equality()
+        return self.assignment()
+
+    def assignment(self) -> Expr:
+        expr = self.equality()
+
+        if self.match(TokenType.EQUAL):
+            equals = self.previous
+            value = self.assignment()
+        
+            if isinstance(expr, Variable):
+                name = expr.name
+                return Assign(name, value)
+
+            self.error(equals, "Invalid assignment target")
+        
+        return expr
 
     def equality(self) -> Expr:
         expr = self.comparison()
@@ -27,6 +52,30 @@ class Parser:
             expr = Binary(expr, operator, right)
 
         return expr
+
+    def statement(self) -> Stmt:
+        if self.match(TokenType.PRINT):
+            return self.print_statement()
+        return self.expression_statement()
+
+    def print_statement(self) -> Stmt:
+        value = self.expression()
+        self.consume(TokenType.SEMICOLON, "Expect ';' after value.")
+        return Print(value)
+
+    def expression_statement(self) -> Stmt:
+        expr = self.expression
+        self.consume(TokenType.SEMICOLON, "Expect ';' after expression.")
+        return Expression(expr)
+
+    def var_declaration(self) -> Var:
+        name = self.consume(TokenType.IDENTIFIER, "Expect variable name.")
+        initializer = None
+        if self.match(TokenType.EQUAL):
+            initializer = self.expression()
+        
+        self.consume(TokenType.SEMICOLON, "Expect ';' after variable declaration.")
+        return Var(name, initializer)
 
     def comparison(self) -> Expr:
 
@@ -93,6 +142,9 @@ class Parser:
         if self.match(TokenType.NUMBER, TokenType.STRING):
             return Literal(self.previous().literal)
 
+        if self.match(TokenType.IDENTIFIER):
+            return Variable(self.previous())
+
         if self.match(TokenType.LEFT_PAREN):
             expr = self.expression()
             self.consume(TokenType.RIGHT_PAREN, "Expect ')' after expression.")
@@ -136,9 +188,9 @@ class Parser:
     def synchronize(self):
         self.advance()
         while not self.is_at_end():
-            if self.previous().type == token.SEMICOLON:
+            if self.previous().type == TokenType.SEMICOLON:
                 return
-            if self.peek.type() in KEYWORDS:
+            if self.peek().type in KEYWORDS:
                 return
 
             self.advance()

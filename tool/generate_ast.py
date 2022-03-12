@@ -67,12 +67,18 @@ if __name__ == "__main__":
 
     output_dir = sys.argv[1]
 
-    # TODO: expand this to include proper type annotations
-    types_list = [
+    # TODO: expand these lists to include proper type annotations
+    define_ast(output_dir, "Expr", [
         "Binary   : left, operator, right",
         "Grouping : expression",
         "Literal  : value",
+        "Variable : name",
         "Unary    : operator, right",
-    ]
+        "Assign   : name, value"
+    ])
 
-    define_ast(output_dir, "Expr", types_list)
+    define_ast(output_dir, "Stmt", [
+        "Expression   : expression",
+        "Print        : expression",
+        "Var          : name, initializer"
+    ])

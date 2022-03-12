@@ -1,19 +1,28 @@
-from pylox.expr import Visitor, Expr
 from pylox.types import LoxObject
 from pylox.exceptions import LoxRuntimeError
 from pylox.token_type import TokenType
+from pylox.environment import Environment
+
+from pylox import expr
+from pylox import stmt
+
+from typing import List
 
 
-class Interpreter(Visitor):
+class Interpreter(expr.Visitor, stmt.Visitor):
     def __init__(self, runtime):
         self.runtime = runtime
+        self.environment = Environment()
 
-    def interpret(self, expression: Expr) -> None:
+    def interpret(self, statements: List[stmt.Stmt]) -> None:
         try:
-            value = self.evaluate(expression)
-            return value
+            for statement in statements:
+                self.execute(statement)
         except LoxRuntimeError as e:
             self.runtime.runtime_error(e)
+
+    def execute(self, statement: stmt.Stmt):
+        statement.accept(self)
 
     def visit_literal_expr(self, expr) -> LoxObject:
         return expr.value
@@ -72,6 +81,28 @@ class Interpreter(Visitor):
                 )
             case _:
                 pass  # TODO: Handle errors n stuff
+
+    def visit_expression_stmt(statement: stmt.Expression) -> None:
+        self.evaluate(statement.expression) 
+
+    def visit_print_stmt(self, statement: stmt.Print) -> None:
+        value = self.evaluate(statement.expression)
+        print(str(value))
+
+    def visit_var_stmt(self, statement: stmt.Var) -> None:
+        value = None
+        if statement.initializer is not None:
+            value = self.evaluate(statement.initializer)
+        
+        self.environment.define(statement.name.lexeme, value)
+
+    def visit_variable_expr(self, expression: expr.Variable):
+        return self.environment.get(expression.name)
+
+    def visit_assign_expr(self, expr: expr.Assign):
+        value = self.evaluate(expr.value)
+        self.environment.assign(expr.name, value)
+        return value
 
     def evaluate(self, expr) -> LoxObject:
         return expr.accept(self)
