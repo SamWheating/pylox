@@ -4,6 +4,7 @@ from pylox.token_type import TokenType
 from pylox.token import Token
 from pylox.lox import Lox
 import pylox.expr as expr
+import pylox.stmt as stmt
 
 class TestInterpreter(unittest.TestCase):
 
@@ -19,9 +20,13 @@ class TestInterpreter(unittest.TestCase):
             expr.Grouping(expr.Literal(45.67)),
         )
 
-        result = self.interpreter.interpret(expression)
+        identifier_token = Token(TokenType.IDENTIFIER, "a", None, 1)
+
+        statement = stmt.Var(identifier_token, expression)
+
+        self.interpreter.execute(statement)
         
-        assert result == -5617.41
+        self.interpreter.environment.get(identifier_token) == -1 * 123.0 * 45.67
 
     def test_interpreter_throws_runtime_error(self):
 
@@ -31,7 +36,7 @@ class TestInterpreter(unittest.TestCase):
             expr.Literal("A String"),
         )
 
-        result = self.interpreter.interpret(expression)
+        result = self.interpreter.interpret([expression])
         
         assert result is None
         assert self.runtime.had_runtime_error

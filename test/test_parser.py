@@ -4,6 +4,7 @@ from pylox.token_type import TokenType
 from pylox.token import Token
 from pylox.lox import Lox
 import pylox.expr as expr
+import pylox.stmt as stmt
 
 class TestParser(unittest.TestCase):
 
@@ -17,29 +18,31 @@ class TestParser(unittest.TestCase):
             Token(TokenType.NUMBER, "12", 12.0, 1),
             Token(TokenType.PLUS, "+", None, 1),
             Token(TokenType.NUMBER, "15", 15.0, 1),
+            Token(TokenType.SEMICOLON, ";", None, 1),
             Token(TokenType.EOF, "", None, 1)
         ]
 
-        result = self.parser.parse()
+        result = self.parser.parse()[0]
 
-        assert type(result) == expr.Binary
-        assert result.operator.type == TokenType.PLUS
-        assert result.left.value == 12.0
-        assert result.right.value == 15.0
+        assert type(result) == stmt.Expression
+        assert result.expression.operator.type == TokenType.PLUS
+        assert result.expression.left.value == 12.0
+        assert result.expression.right.value == 15.0
 
     def test_unary_parsing(self):
 
         self.parser.tokens = [
             Token(TokenType.MINUS, "-", None, 1),
             Token(TokenType.NUMBER, "12", 12.0, 1),
+            Token(TokenType.SEMICOLON, ";", None, 1),
             Token(TokenType.EOF, "", None, 1)
         ]
 
-        result = self.parser.parse()
+        result = self.parser.parse()[0]
 
-        assert type(result) == expr.Unary
-        assert result.operator.type == TokenType.MINUS
-        assert result.right.value == 12.0
+        assert type(result.expression) == expr.Unary
+        assert result.expression.operator.type == TokenType.MINUS
+        assert result.expression.right.value == 12.0
 
     def test_multiple_unary_parsing(self):
 
@@ -48,17 +51,18 @@ class TestParser(unittest.TestCase):
             Token(TokenType.MINUS, "-", None, 1),
             Token(TokenType.MINUS, "-", None, 1),
             Token(TokenType.NUMBER, "12", 12.0, 1),
+            Token(TokenType.SEMICOLON, ";", None, 1),
             Token(TokenType.EOF, "", None, 1)
         ]
 
-        result = self.parser.parse()
+        result = self.parser.parse()[0]
 
-        assert type(result) == expr.Unary
-        assert result.operator.type == TokenType.MINUS
-        assert type(result.right) == expr.Unary
-        assert result.right.operator.type == TokenType.MINUS
-        assert type(result.right.right) == expr.Unary
-        assert result.right.right.operator.type == TokenType.MINUS
+        assert type(result.expression) == expr.Unary
+        assert result.expression.operator.type == TokenType.MINUS
+        assert type(result.expression.right) == expr.Unary
+        assert result.expression.right.operator.type == TokenType.MINUS
+        assert type(result.expression.right.right) == expr.Unary
+        assert result.expression.right.right.operator.type == TokenType.MINUS
 
     def test_parser_error_handling(self):
 
@@ -70,7 +74,7 @@ class TestParser(unittest.TestCase):
             Token(TokenType.EOF, "", None, 1)
         ]
 
-        result = self.parser.parse()
+        result = self.parser.parse()[0]
         
         assert result is None
         assert self.runtime.had_error
