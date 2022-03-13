@@ -18,6 +18,9 @@ class Visitor(ABC):
     def visit_block_stmt(self, expr):
         raise NotImplementedError()
 
+    def visit_while_stmt(self, expr):
+        raise NotImplementedError()
+
 class Stmt(ABC):
 
     def accept(visitor: Visitor):
@@ -69,5 +72,15 @@ class Block(Stmt):
 
     def accept(self, visitor: Visitor):
         return visitor.visit_block_stmt(self)
+
+
+class While(Stmt):
+
+    def __init__(self, condition, body):
+        self.condition = condition
+        self.body = body
+
+    def accept(self, visitor: Visitor):
+        return visitor.visit_while_stmt(self)
 
 

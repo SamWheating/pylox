@@ -106,6 +106,10 @@ class Interpreter(expr.Visitor, stmt.Visitor):
         value = self.evaluate(statement.expression)
         print(str(value))
 
+    def visit_while_stmt(self, statement: stmt.While) -> None:
+        while self.is_truthy(self.evaluate(statement.condition)):
+            self.execute(statement.body)
+
     def visit_var_stmt(self, statement: stmt.Var) -> None:
         value = None
         if statement.initializer is not None:
@@ -120,13 +124,12 @@ class Interpreter(expr.Visitor, stmt.Visitor):
         self.execute_block(stmt.statements, Environment(enclosing=self.environment))
 
     def execute_block(self, statements: List[stmt.Stmt], environment: Environment):
-        previous_env = self.environment
         self.environment = environment
         try:
             for stmt in statements:
                 self.execute(stmt)
         finally:
-            self.environment = previous_env
+            self.environment = self.environment.enclosing
 
     def visit_assign_expr(self, expr: expr.Assign):
         value = self.evaluate(expr.value)

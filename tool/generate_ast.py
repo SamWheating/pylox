@@ -84,4 +84,5 @@ if __name__ == "__main__":
         "Print        : expression",
         "Var          : name, initializer",
         "Block        : statements",
+        "While        : condition, body",
     ])
