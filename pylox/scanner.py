@@ -23,6 +23,7 @@ class Scanner:
         "true": TokenType.TRUE,
         "var": TokenType.VAR,
         "while": TokenType.WHILE,
+        "assert": TokenType.ASSERT,
     }
 
     def __init__(self, source, runtime):

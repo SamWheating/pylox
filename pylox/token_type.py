@@ -48,6 +48,7 @@ class TokenType(Enum):
     TRUE = auto()
     VAR = auto()
     WHILE = auto()
+    ASSERT = auto()
 
     EOF = auto()
 
@@ -61,4 +62,5 @@ KEYWORDS = [
     TokenType.RETURN,
     TokenType.VAR,
     TokenType.WHILE,
+    TokenType.ASSERT,
 ]

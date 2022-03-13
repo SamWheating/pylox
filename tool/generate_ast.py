@@ -85,4 +85,5 @@ if __name__ == "__main__":
         "Var          : name, initializer",
         "Block        : statements",
         "While        : condition, body",
+        "Assert       : assert_token, expression",
     ])

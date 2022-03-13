@@ -86,6 +86,8 @@ class Parser:
             return self.while_statement()
         if self.match(TokenType.LEFT_BRACE):
             return stmt.Block(self.block())
+        if self.match(TokenType.ASSERT):
+            return self.assert_statement()
         return self.expression_statement()
 
     def while_statement(self) -> stmt.Stmt:
@@ -153,6 +155,12 @@ class Parser:
         value = self.expression()
         self.consume(TokenType.SEMICOLON, "Expect ';' after value.")
         return stmt.Print(value)
+
+    def assert_statement(self) -> stmt.Stmt:
+        assert_token = self.previous() # need this to report the line number
+        value = self.expression()
+        self.consume(TokenType.SEMICOLON, "Expect ';' after expression.")
+        return stmt.Assert(assert_token, value)
 
     def expression_statement(self) -> stmt.Stmt:
         expression = self.expression()

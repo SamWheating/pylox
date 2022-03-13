@@ -4,7 +4,7 @@ from pylox.scanner import Scanner
 from pylox.parser import Parser
 from pylox.interpreter import Interpreter
 from pylox.ast_printer import ASTPrinter
-from pylox.exceptions import LoxRuntimeError
+from pylox.exceptions import LoxRuntimeError, LoxAssertionError
 
 
 class Lox:
@@ -18,7 +18,8 @@ class Lox:
         with open(file_name) as ifp:
             text = ifp.read()
 
-        self.run(text)
+        self.source = text
+        self.run()
 
         if self.had_error:
             sys.exit(65)
@@ -31,12 +32,13 @@ class Lox:
             line = input("> ")
             if line in ["", "exit"]:
                 break
-            self.run(line)
+            self.source = line
+            self.run()
             self.had_error = False
 
-    def run(self, source: str):
+    def run(self):
 
-        scanner = Scanner(source, self)
+        scanner = Scanner(self.source, self)
         tokens = scanner.scan_tokens()
         parser = Parser(tokens, self)
         statements = parser.parse()
@@ -52,6 +54,11 @@ class Lox:
     def runtime_error(self, error: LoxRuntimeError):
         print(str(error))
         print(f"[line: {error.token.line}]")
+        self.had_runtime_error = True
+
+    def assertion_error(self, error: LoxAssertionError):
+        print(f"AssertionError on line {error.line}: ")
+        print(" -> ", self.source.split("\n")[error.line - 1])
         self.had_runtime_error = True
 
     def report(self, line: int, where: str, message: str):

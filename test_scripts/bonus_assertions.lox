@@ -1,0 +1,6 @@
+var a = 1;
+for (;;){
+    a = a * 2;
+    print a;
+    assert a != 128;
+}

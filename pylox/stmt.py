@@ -21,6 +21,9 @@ class Visitor(ABC):
     def visit_while_stmt(self, expr):
         raise NotImplementedError()
 
+    def visit_assert_stmt(self, expr):
+        raise NotImplementedError()
+
 class Stmt(ABC):
 
     def accept(visitor: Visitor):
@@ -82,5 +85,15 @@ class While(Stmt):
 
     def accept(self, visitor: Visitor):
         return visitor.visit_while_stmt(self)
+
+
+class Assert(Stmt):
+
+    def __init__(self, assert_token, expression):
+        self.assert_token = assert_token
+        self.expression = expression
+
+    def accept(self, visitor: Visitor):
+        return visitor.visit_assert_stmt(self)
 
 

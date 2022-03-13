@@ -1,5 +1,5 @@
 from pylox.types import LoxObject
-from pylox.exceptions import LoxRuntimeError
+from pylox.exceptions import LoxRuntimeError, LoxAssertionError
 from pylox.token_type import TokenType
 from pylox.environment import Environment
 
@@ -20,6 +20,8 @@ class Interpreter(expr.Visitor, stmt.Visitor):
                 self.execute(statement)
         except LoxRuntimeError as e:
             self.runtime.runtime_error(e)
+        except LoxAssertionError as e:
+            self.runtime.assertion_error(e)
 
     def execute(self, statement: stmt.Stmt):
         statement.accept(self)
@@ -105,6 +107,11 @@ class Interpreter(expr.Visitor, stmt.Visitor):
     def visit_print_stmt(self, statement: stmt.Print) -> None:
         value = self.evaluate(statement.expression)
         print(str(value))
+
+    def visit_assert_stmt(self, statement: stmt.Assert) -> None:
+        value = self.evaluate(statement.expression)
+        if not self.is_truthy(value):
+            raise LoxAssertionError(statement.assert_token.line, "Assertion Error")
 
     def visit_while_stmt(self, statement: stmt.While) -> None:
         while self.is_truthy(self.evaluate(statement.condition)):
