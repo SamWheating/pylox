@@ -4,16 +4,19 @@ from abc import ABC
 class Visitor(ABC):
 
     def visit_expression_stmt(self, expr):
-        pass
+        raise NotImplementedError()
+
+    def visit_if_stmt(self, expr):
+        raise NotImplementedError()
 
     def visit_print_stmt(self, expr):
-        pass
+        raise NotImplementedError()
 
     def visit_var_stmt(self, expr):
-        pass
+        raise NotImplementedError()
 
     def visit_block_stmt(self, expr):
-        pass
+        raise NotImplementedError()
 
 class Stmt(ABC):
 
@@ -27,6 +30,17 @@ class Expression(Stmt):
 
     def accept(self, visitor: Visitor):
         return visitor.visit_expression_stmt(self)
+
+
+class If(Stmt):
+
+    def __init__(self, condition, then_branch, else_branch):
+        self.condition = condition
+        self.then_branch = then_branch
+        self.else_branch = else_branch
+
+    def accept(self, visitor: Visitor):
+        return visitor.visit_if_stmt(self)
 
 
 class Print(Stmt):

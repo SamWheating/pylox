@@ -30,8 +30,29 @@ class Parser:
     def expression(self) -> expr.Expr:
         return self.assignment()
 
-    def assignment(self) -> expr.Expr:
+    # have to call this "logical_or" because "or" is reserved in Python
+    def logical_or(self) -> expr.Expr:
+        expression = self.logical_and()
+
+        while self.match(TokenType.OR):
+            operator = self.previous()
+            right = self.logical_and()
+            expression = expr.Logical(expression, operator, right)
+        
+        return expression
+
+    def logical_and(self) -> expr.Expr:
         expression = self.equality()
+
+        while self.match(TokenType.AND):
+            operator = self.previous()
+            right = self.equality()
+            expression = expr.Logical(expression, operator, right)
+        
+        return expression
+
+    def assignment(self) -> expr.Expr:
+        expression = self.logical_or()
 
         if self.match(TokenType.EQUAL):
             equals = self.previous()
@@ -55,11 +76,24 @@ class Parser:
         return expression
 
     def statement(self) -> stmt.Stmt:
+        if self.match(TokenType.IF):
+            return self.if_statement()
         if self.match(TokenType.PRINT):
             return self.print_statement()
         if self.match(TokenType.LEFT_BRACE):
             return stmt.Block(self.block())
         return self.expression_statement()
+
+    def if_statement(self) -> stmt.Stmt:
+        self.consume(TokenType.LEFT_PAREN, "Expected '(' after 'if'.")
+        condition = self.expression()
+        self.consume(TokenType.RIGHT_PAREN, "Expected ')' after if condition.")
+        then_branch = self.statement()
+        else_branch = None
+        if self.match(TokenType.ELSE):
+            else_branch = self.statement()
+        
+        return stmt.If(condition, then_branch, else_branch)
 
     def block(self) -> List[stmt.Stmt]:
         statements = []

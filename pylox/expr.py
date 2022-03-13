@@ -4,22 +4,25 @@ from abc import ABC
 class Visitor(ABC):
 
     def visit_binary_expr(self, expr):
-        pass
+        raise NotImplementedError()
 
     def visit_grouping_expr(self, expr):
-        pass
+        raise NotImplementedError()
 
     def visit_literal_expr(self, expr):
-        pass
+        raise NotImplementedError()
 
     def visit_variable_expr(self, expr):
-        pass
+        raise NotImplementedError()
 
     def visit_unary_expr(self, expr):
-        pass
+        raise NotImplementedError()
 
     def visit_assign_expr(self, expr):
-        pass
+        raise NotImplementedError()
+
+    def visit_logical_expr(self, expr):
+        raise NotImplementedError()
 
 class Expr(ABC):
 
@@ -82,5 +85,16 @@ class Assign(Expr):
 
     def accept(self, visitor: Visitor):
         return visitor.visit_assign_expr(self)
+
+
+class Logical(Expr):
+
+    def __init__(self, left, operator, right):
+        self.left = left
+        self.operator = operator
+        self.right = right
+
+    def accept(self, visitor: Visitor):
+        return visitor.visit_logical_expr(self)
 
 

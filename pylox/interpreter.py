@@ -27,8 +27,25 @@ class Interpreter(expr.Visitor, stmt.Visitor):
     def visit_literal_expr(self, expr) -> LoxObject:
         return expr.value
 
+    def visit_if_stmt(self, statement: stmt.Stmt) -> None:
+        if self.is_truthy(self.evaluate(statement.condition)):
+            self.execute(statement.then_branch)
+        elif statement.else_branch is not None:
+            self.execute(statement.else_branch)
+
     def visit_grouping_expr(self, expr) -> LoxObject:
         return self.evaluate(expr.expression)
+
+    def visit_logical_expr(self, expression: expr.Expr) -> LoxObject:
+        left = self.evaluate(expression.left)
+        if expression.operator.type == TokenType.OR:
+            if self.is_truthy(left):
+                return left
+        elif expression.operator.type == TokenType.AND:
+            if not self.is_truthy(left):
+                return left
+        
+        return self.evaluate(expression.right)
 
     def visit_unary_expr(self, expr) -> LoxObject:
         right = self.evaluate(expr.right)

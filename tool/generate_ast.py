@@ -38,7 +38,7 @@ def define_visitor(base_name, types):
         visitor_contents += (
             f"    def visit_{class_name.lower()}_{base_name.lower()}(self, expr):\n"
         )
-        visitor_contents += "        pass\n\n"
+        visitor_contents += "        raise NotImplementedError()\n\n"
 
     return visitor_contents
 
@@ -74,12 +74,14 @@ if __name__ == "__main__":
         "Literal  : value",
         "Variable : name",
         "Unary    : operator, right",
-        "Assign   : name, value"
+        "Assign   : name, value",
+        "Logical  : left, operator, right",
     ])
 
     define_ast(output_dir, "Stmt", [
         "Expression   : expression",
+        "If           : condition, then_branch, else_branch",
         "Print        : expression",
         "Var          : name, initializer",
-        "Block        : statements"
+        "Block        : statements",
     ])
