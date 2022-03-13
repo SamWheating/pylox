@@ -1,0 +1,6 @@
+var one = 1;
+if ( one == 2 ) {
+    print "one is 2";
+} else {
+    print "one is not 2";
+}
