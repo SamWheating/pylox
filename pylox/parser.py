@@ -76,6 +76,8 @@ class Parser:
         return expression
 
     def statement(self) -> stmt.Stmt:
+        if self.match(TokenType.FOR):
+            return self.for_statement()
         if self.match(TokenType.IF):
             return self.if_statement()
         if self.match(TokenType.PRINT):
@@ -93,6 +95,41 @@ class Parser:
         body = self.statement()
 
         return stmt.While(condition, body)
+
+    def for_statement(self) -> stmt.Stmt:
+        """This parses the `for` syntax into a while loop AST"""
+
+        self.consume(TokenType.LEFT_PAREN, "Expected '(' after 'if'.")
+        if self.match(TokenType.SEMICOLON):
+            initializer = None
+        elif self.match(TokenType.VAR):
+            initializer = self.var_declaration()
+        else:
+            initializer = self.expression_statement()
+                
+        condition = expr.Literal(True)
+        if not self.check(TokenType.SEMICOLON):
+            condition = self.expression()
+        
+        self.consume(TokenType.SEMICOLON, "Expected ';' after loop condition.")
+
+        increment = None
+        if not self.check(TokenType.RIGHT_PAREN):
+            increment = self.expression()
+        
+        self.consume(TokenType.RIGHT_PAREN, "Expected ')' after for clauses.")
+
+        body = self.statement()
+
+        if increment is not None:
+            body = stmt.Block([body, stmt.Expression(increment)])
+
+        body = stmt.While(condition, body)
+
+        if initializer is not None:
+            body = stmt.Block([initializer, body])
+
+        return body
 
     def if_statement(self) -> stmt.Stmt:
         self.consume(TokenType.LEFT_PAREN, "Expected '(' after 'if'.")

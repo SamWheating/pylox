@@ -20,6 +20,8 @@ class Environment:
         if self.enclosing is not None:
             return self.enclosing.get(name)
         
+        print("undefined get")
+        print(self.values)
         raise LoxRuntimeError(name, f"Undefined variable {name.lexeme}.")
 
     def assign(self, name: Token, value: LoxObject) -> None:
@@ -30,5 +32,5 @@ class Environment:
         if self.enclosing is not None:
             self.enclosing.assign(name, value)
             return
-
+        
         raise LoxRuntimeError(name, f"Undefined variable {name.lexeme}.")
