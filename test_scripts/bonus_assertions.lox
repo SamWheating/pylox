@@ -1,6 +1,6 @@
+// count by twos from 1 to 128, then fail.
 var a = 1;
 for (;;){
     a = a * 2;
-    print a;
     assert a != 128;
 }

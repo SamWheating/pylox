@@ -57,7 +57,7 @@ class Lox:
         self.had_runtime_error = True
 
     def assertion_error(self, error: LoxAssertionError):
-        print(f"AssertionError on line {error.line}: ")
+        print(f"Assertion Error on line {error.line}: ")
         print(" -> ", self.source.split("\n")[error.line - 1])
         self.had_runtime_error = True
 
