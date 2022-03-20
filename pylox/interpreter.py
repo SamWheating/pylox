@@ -10,6 +10,8 @@ from pylox import stmt
 
 from typing import List
 
+import time
+
 class ClockBuiltinFn(LoxCallable):
 
     # Defines a builtin function clock() which returns the current epoch time in seconds
@@ -19,7 +21,7 @@ class ClockBuiltinFn(LoxCallable):
         return 0
 
     def call(self, interpreter, arguments: List[LoxObject]):
-        return time.now()
+        return time.time()
 
     def __str__(self):
         return "< native fn >"
