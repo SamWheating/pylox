@@ -9,3 +9,9 @@ fun noArgs() {
 }
 
 noArgs();
+
+fun timesThree(number){
+    return number * 3;
+}
+
+assert timesThree(6.2) == 18.6;

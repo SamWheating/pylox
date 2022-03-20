@@ -1,5 +1,5 @@
 from pylox.types import LoxObject
-from pylox.exceptions import LoxRuntimeError, LoxAssertionError
+from pylox.exceptions import LoxRuntimeError, LoxAssertionError, LoxReturn
 from pylox.token_type import TokenType
 from pylox.environment import Environment
 from pylox.lox_callable import LoxCallable
@@ -122,7 +122,14 @@ class Interpreter(expr.Visitor, stmt.Visitor):
                 pass  # TODO: Handle errors n stuff
 
     def visit_expression_stmt(self, statement: stmt.Expression) -> None:
-        self.evaluate(statement.expression) 
+        self.evaluate(statement.expression)
+
+    def visit_return_stmt(self, statement: stmt.Return) -> None:
+        value = None
+        if statement.value is not None:
+            value = self.evaluate(statement.value)
+        
+        raise LoxReturn(value)
 
     def visit_print_stmt(self, statement: stmt.Print) -> None:
         value = self.evaluate(statement.expression)

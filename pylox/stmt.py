@@ -27,6 +27,9 @@ class Visitor(ABC):
     def visit_assert_stmt(self, expr):
         raise NotImplementedError()
 
+    def visit_return_stmt(self, expr):
+        raise NotImplementedError()
+
 class Stmt(ABC):
 
     def accept(visitor: Visitor):
@@ -109,5 +112,15 @@ class Assert(Stmt):
 
     def accept(self, visitor: Visitor):
         return visitor.visit_assert_stmt(self)
+
+
+class Return(Stmt):
+
+    def __init__(self, keyword, value):
+        self.keyword = keyword
+        self.value = value
+
+    def accept(self, visitor: Visitor):
+        return visitor.visit_return_stmt(self)
 
 

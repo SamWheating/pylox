@@ -1,5 +1,6 @@
 from pylox.lox_callable import LoxCallable
 from pylox.types import LoxObject
+from pylox.exceptions import LoxReturn
 from pylox import stmt
 from typing import List
 from pylox.environment import Environment
@@ -17,7 +18,10 @@ class LoxFunction(LoxCallable):
         for i in range(len(self.declaration.params)):
             environment.define(self.declaration.params[i].lexeme, arguments[i])
         
-        interpreter.execute_block(self.declaration.body, environment)
+        try:
+            interpreter.execute_block(self.declaration.body, environment)
+        except LoxReturn as lr:
+            return lr.value
         return None
 
     def __str__(self):

@@ -88,4 +88,5 @@ if __name__ == "__main__":
         "Block        : statements",
         "While        : condition, body",
         "Assert       : assert_token, expression",
+        "Return       : keyword, value",
     ])

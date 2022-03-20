@@ -94,6 +94,8 @@ class Parser:
         return expression
 
     def statement(self) -> stmt.Stmt:
+        # TODO: refactor this to use pattern matching
+        # thus removing the repataed / redundant calls to `match()`
         if self.match(TokenType.FOR):
             return self.for_statement()
         if self.match(TokenType.IF):
@@ -106,7 +108,18 @@ class Parser:
             return stmt.Block(self.block())
         if self.match(TokenType.ASSERT):
             return self.assert_statement()
+        if self.match(TokenType.RETURN):
+            return self.return_statement()
         return self.expression_statement()
+
+    def return_statement(self) -> stmt.Stmt:
+        keyword = self.previous()
+        value = None
+        if not self.check(TokenType.SEMICOLON):
+            value = self.expression()
+        
+        self.consume(TokenType.SEMICOLON, "Expect ';' after return value.")
+        return stmt.Return(keyword, value)
 
     def while_statement(self) -> stmt.Stmt:
         self.consume(TokenType.LEFT_PAREN, "Expect '(' after 'while'.")
