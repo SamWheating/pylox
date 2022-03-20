@@ -18,3 +18,18 @@ assert timesThree(6.2) == 18.6;
 
 print("The current time is:");
 print(clock());
+
+// Testing closures:
+
+fun makeCounter(){
+    var i = 0;
+    fun count() {
+        i = i + 1;
+        return i;
+    }
+    return count;
+}
+
+var counter = makeCounter();
+assert counter() == 1;
+assert counter() == 2;

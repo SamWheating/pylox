@@ -138,7 +138,7 @@ class Interpreter(expr.Visitor, stmt.Visitor):
         print(str(value))
 
     def visit_function_stmt(self, statement: stmt.Function) -> None:
-        function = LoxFunction(statement)
+        function = LoxFunction(statement, self.environment)
         self.environment.define(statement.name.lexeme, function)
 
     def visit_assert_stmt(self, statement: stmt.Assert) -> None:
