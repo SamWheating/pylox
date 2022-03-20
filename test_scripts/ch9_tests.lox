@@ -1,0 +1,15 @@
+var a = 5;
+for(var b = 0; b < 5; b = b + 1) {
+    a = a + 1;
+}
+assert a == 10;
+
+var a = 5;
+while(a < 20) {
+    a = a + 1;
+}
+assert a == 20;
+
+assert true and true and true and true and false == false;
+
+print "All tests passed.";

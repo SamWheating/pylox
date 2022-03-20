@@ -76,10 +76,12 @@ if __name__ == "__main__":
         "Unary    : operator, right",
         "Assign   : name, value",
         "Logical  : left, operator, right",
+        "Call     : callee, paren, arguments",
     ])
 
     define_ast(output_dir, "Stmt", [
         "Expression   : expression",
+        "Function     : name, params, body",
         "If           : condition, then_branch, else_branch",
         "Print        : expression",
         "Var          : name, initializer",

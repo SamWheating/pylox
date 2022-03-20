@@ -2,17 +2,37 @@ from pylox.types import LoxObject
 from pylox.exceptions import LoxRuntimeError, LoxAssertionError
 from pylox.token_type import TokenType
 from pylox.environment import Environment
+from pylox.lox_callable import LoxCallable
+from pylox.lox_function import LoxFunction
 
 from pylox import expr
 from pylox import stmt
 
 from typing import List
 
+class ClockBuiltinFn(LoxCallable):
+
+    # Defines a builtin function clock() which returns the current epoch time in seconds
+    # TODO: move the builtin functions to their own file?
+
+    def arity(self) -> int:
+        return 0
+
+    def call(self, interpreter, arguments: List[LoxObject]):
+        return time.now()
+
+    def __str__(self):
+        return "< native fn >"
+
 
 class Interpreter(expr.Visitor, stmt.Visitor):
+
     def __init__(self, runtime):
         self.runtime = runtime
-        self.environment = Environment()
+        self.globals = Environment()
+        self.environment = self.globals
+
+        self.globals.define("clock", ClockBuiltinFn())
 
     def interpret(self, statements: List[stmt.Stmt]) -> None:
         try:
@@ -108,6 +128,10 @@ class Interpreter(expr.Visitor, stmt.Visitor):
         value = self.evaluate(statement.expression)
         print(str(value))
 
+    def visit_function_stmt(self, statement: stmt.Function) -> None:
+        function = LoxFunction(statement)
+        self.environment.define(statement.name.lexeme, function)
+
     def visit_assert_stmt(self, statement: stmt.Assert) -> None:
         value = self.evaluate(statement.expression)
         if not self.is_truthy(value):
@@ -142,6 +166,23 @@ class Interpreter(expr.Visitor, stmt.Visitor):
         value = self.evaluate(expr.value)
         self.environment.assign(expr.name, value)
         return value
+
+    def visit_call_expr(self, expression: expr.Call):
+        callee = self.evaluate(expression.callee)
+        arguments = []
+        for argument in expression.arguments:
+            arguments.append(self.evaluate(argument))
+
+        if not isinstance(callee, LoxCallable):
+            raise LoxRuntimeError(expression.paren, "Can only call functions and classes.")
+
+        function = callee
+
+        if len(arguments) != function.arity():
+            raise LoxRuntimeError(expression.paren, f"Expected {function.arity()} arguments but got { len(arguments) }.")
+
+        return function.call(self, arguments)
+
 
     def evaluate(self, expr) -> LoxObject:
         return expr.accept(self)

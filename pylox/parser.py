@@ -20,6 +20,8 @@ class Parser:
 
     def declaration(self) -> stmt.Stmt:
         try:
+            if self.match(TokenType.FUN):
+                return self.function("function")
             if self.match(TokenType.VAR):
                 return self.var_declaration()
             return self.statement()
@@ -29,6 +31,22 @@ class Parser:
 
     def expression(self) -> expr.Expr:
         return self.assignment()
+
+    def function(self, kind: str) -> stmt.Function:
+        name = self.consume(TokenType.IDENTIFIER, f"Expect {kind} name.")
+        self.consume(TokenType.LEFT_PAREN, f"Expect '(' after {kind} name.")
+        parameters = []
+        if not self.check(TokenType.RIGHT_PAREN):
+            while True:
+                if len(parameters) >= 255:
+                    self.error(self.peek(), "Can't have more than 255 parameters.")
+                parameters.append(self.consume(TokenType.IDENTIFIER, "Expect parameter name."))
+                if not self.match(TokenType.COMMA):
+                    break
+        self.consume(TokenType.RIGHT_PAREN, "Expect ')' after parameters.")
+        self.consume(TokenType.LEFT_BRACE, f"Expect '{{' before {kind} body")
+        body = self.block()
+        return stmt.Function(name, parameters, body)
 
     # have to call this "logical_or" because "or" is reserved in Python
     def logical_or(self) -> expr.Expr:
@@ -227,7 +245,8 @@ class Parser:
             right = self.unary()
             return expr.Unary(operator, right)
 
-        return self.primary()
+        return self.call()
+
 
     def primary(self) -> Token:
 
@@ -250,6 +269,33 @@ class Parser:
             return expr.Grouping(expression)
 
         raise self.error(self.peek(), "Expect expression.")
+
+    def call(self) -> expr.Expr:
+        
+        expression = self.primary()
+        while True:
+            if self.match(TokenType.LEFT_PAREN):
+                expression = self.finish_call(expression)
+            else:
+                break
+        
+        return expression
+
+
+    def finish_call(self, callee: expr.Expr) -> expr.Expr:
+        arguments = []
+        if not self.check(TokenType.RIGHT_PAREN):
+            while True:
+                if len(arguments) >= 255:
+                    self.error(self.peek(), "Can't have more than 255 arguments.")
+                arguments.append(self.expression())
+                if not self.match(TokenType.COMMA):
+                    break
+        
+        paren = self.consume(TokenType.RIGHT_PAREN, "Expect ')' after arguments.")
+        
+        return expr.Call(callee, paren, arguments)
+
 
     def check(self, t: TokenType) -> bool:
         if self.is_at_end():

@@ -1,0 +1,11 @@
+fun sayHi(first, last) {
+    print "Hi " + first + " " + last + "!";
+}
+
+sayHi("Dear", "Reader");
+
+fun noArgs() {
+    print "this function has no args";
+}
+
+noArgs();

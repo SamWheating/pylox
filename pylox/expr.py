@@ -24,6 +24,9 @@ class Visitor(ABC):
     def visit_logical_expr(self, expr):
         raise NotImplementedError()
 
+    def visit_call_expr(self, expr):
+        raise NotImplementedError()
+
 class Expr(ABC):
 
     def accept(visitor: Visitor):
@@ -96,5 +99,16 @@ class Logical(Expr):
 
     def accept(self, visitor: Visitor):
         return visitor.visit_logical_expr(self)
+
+
+class Call(Expr):
+
+    def __init__(self, callee, paren, arguments):
+        self.callee = callee
+        self.paren = paren
+        self.arguments = arguments
+
+    def accept(self, visitor: Visitor):
+        return visitor.visit_call_expr(self)
 
 
