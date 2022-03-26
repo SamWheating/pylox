@@ -164,12 +164,13 @@ class Interpreter(expr.Visitor, stmt.Visitor):
         self.execute_block(stmt.statements, Environment(enclosing=self.environment))
 
     def execute_block(self, statements: List[stmt.Stmt], environment: Environment):
-        self.environment = environment
+        previous = self.environment
         try:
+            self.environment = environment
             for stmt in statements:
                 self.execute(stmt)
         finally:
-            self.environment = self.environment.enclosing
+            self.environment = previous
 
     def visit_assign_expr(self, expr: expr.Assign):
         value = self.evaluate(expr.value)

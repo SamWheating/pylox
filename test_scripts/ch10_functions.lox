@@ -33,3 +33,17 @@ fun makeCounter(){
 var counter = makeCounter();
 assert counter() == 1;
 assert counter() == 2;
+
+// Testing recursion:
+
+fun factorial(n){
+    if(n == 1){
+        return 1;
+    }
+    else{
+        var val = factorial(n-1) * n;
+        return val;
+    }
+}
+
+assert factorial(10) == 3628800.0;
