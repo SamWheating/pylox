@@ -1,6 +1,7 @@
 from pylox.types import LoxObject
 from pylox.exceptions import LoxRuntimeError, LoxAssertionError, LoxReturn
 from pylox.token_type import TokenType
+from pylox.token import Token
 from pylox.environment import Environment
 from pylox.lox_callable import LoxCallable
 from pylox.lox_function import LoxFunction
@@ -33,6 +34,7 @@ class Interpreter(expr.Visitor, stmt.Visitor):
         self.runtime = runtime
         self.globals = Environment()
         self.environment = self.globals
+        self.locals = {}
 
         self.globals.define("clock", ClockBuiltinFn())
 
@@ -47,6 +49,9 @@ class Interpreter(expr.Visitor, stmt.Visitor):
 
     def execute(self, statement: stmt.Stmt):
         statement.accept(self)
+
+    def resolve(self, expression: expr.Expr, depth: int) -> None:
+        self.locals[expression] = depth
 
     def visit_literal_expr(self, expr) -> LoxObject:
         return expr.value
@@ -157,8 +162,14 @@ class Interpreter(expr.Visitor, stmt.Visitor):
         
         self.environment.define(statement.name.lexeme, value)
 
-    def visit_variable_expr(self, expression: expr.Variable):
-        return self.environment.get(expression.name)
+    def visit_variable_expr(self, expression: expr.Variable) -> LoxObject:
+        return self.look_up_variable(expression.name, expression)
+
+    def look_up_variable(self, name: Token, expression: expr.Expr) -> LoxObject:
+        distance = self.locals.get(expression, None)
+        if distance is not None:
+            return self.environment.get_at(distance, name.lexeme)
+        return self.globals.get(name)
 
     def visit_block_stmt(self, stmt: stmt.Block) -> None:
         self.execute_block(stmt.statements, Environment(enclosing=self.environment))
@@ -172,9 +183,16 @@ class Interpreter(expr.Visitor, stmt.Visitor):
         finally:
             self.environment = previous
 
-    def visit_assign_expr(self, expr: expr.Assign):
-        value = self.evaluate(expr.value)
-        self.environment.assign(expr.name, value)
+    def visit_assign_expr(self, expression: expr.Assign):
+        value = self.evaluate(expression.value)
+
+
+        distance = self.locals.get(expression)
+        if distance is not None:
+            self.environment.assign_at(distance, expression.name, value)
+        else:
+            self.globals.assign(expression.name, value)
+
         return value
 
     def visit_call_expr(self, expression: expr.Call):

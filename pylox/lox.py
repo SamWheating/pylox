@@ -3,6 +3,7 @@ import sys
 from pylox.scanner import Scanner
 from pylox.parser import Parser
 from pylox.interpreter import Interpreter
+from pylox.resolver import Resolver
 from pylox.ast_printer import ASTPrinter
 from pylox.exceptions import LoxRuntimeError, LoxAssertionError
 
@@ -42,6 +43,12 @@ class Lox:
         tokens = scanner.scan_tokens()
         parser = Parser(tokens, self)
         statements = parser.parse()
+
+        if self.had_error:
+            return
+
+        self.resolver = Resolver(self.interpreter, self)
+        self.resolver.resolve(statements)
 
         if self.had_error:
             return

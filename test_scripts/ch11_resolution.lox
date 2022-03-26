@@ -1,0 +1,11 @@
+var a = "global";
+{
+    fun showA(){
+        return a;
+    }
+
+    assert showA() == "global";
+
+    var a = "block";
+    assert showA() == "global";
+}

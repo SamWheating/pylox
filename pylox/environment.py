@@ -12,6 +12,19 @@ class Environment:
     def define(self, name: str, value: LoxObject) -> None:
         self.values[name] = value
 
+    def ancestor(self, distance: int):
+        environment = self
+        for i in range(distance):
+            environment = environment.enclosing
+        
+        return environment
+
+    def get_at(self, distance: int, name: str) -> LoxObject:
+        return self.ancestor(distance).values[name]
+
+    def assign_at(self, distance: int, name: str, value: LoxObject) -> None:
+        self.ancestor(distance).values[name.lexeme] = value
+
     def get(self, name: Token) -> LoxObject:
         if name.lexeme in self.values:
             return self.values[name.lexeme]
