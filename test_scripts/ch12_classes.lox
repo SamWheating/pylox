@@ -1,0 +1,82 @@
+class myClass {
+    hello() {
+        return "Hello, World";
+    }
+}
+
+assert myClass().hello() == "Hello, World";
+
+var instance = myClass();
+instance.field = "Value";
+
+assert instance.field == "Value";
+
+class myClassWithFields {
+
+    init(name, count) {
+        this.name = name;
+        this.count = count;
+    }
+}
+
+instance = myClassWithFields("apples", 12);
+assert instance.name == "apples";
+assert instance.count == 12;
+
+class singlyLinkedNode {
+
+    init(value, next){
+        this.value = value;
+        this.next = next;
+    }
+}
+
+class singlyLinkedList {
+
+    // append-only list with O(1) lookups.
+
+    init() {
+        this.head = nil;
+    }    
+
+    append(val) {
+        var newNode = singlyLinkedNode(val, nil);
+        var cur = this.head;
+        var prev = nil;
+        while(cur != nil){
+            prev = cur;
+            cur = cur.next;
+        }
+        if(prev != nil){
+            prev.next = newNode;
+        } else {
+            this.head = newNode;
+        }
+    }
+
+    getAt(idx) {
+        var cur = this.head;
+        if(cur == nil){
+            return nil;
+        }
+        var i = 0;
+        while(i < idx){
+            if(cur.next == nil){
+                return nil;
+            }
+            cur = cur.next;
+            i = i + 1;
+        }
+        return cur.value;
+    }
+}
+
+var myList = singlyLinkedList();
+
+for(var i = 0; i < 10; i = i + 1){
+    myList.append(i);
+}
+
+for(var i = 0; i < 10; i = i + 1){
+    assert myList.getAt(i) == i;
+}

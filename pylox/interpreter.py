@@ -5,6 +5,8 @@ from pylox.token import Token
 from pylox.environment import Environment
 from pylox.lox_callable import LoxCallable
 from pylox.lox_function import LoxFunction
+from pylox.lox_class import LoxClass
+from pylox.lox_instance import LoxInstance
 
 from pylox import expr
 from pylox import stmt
@@ -143,7 +145,7 @@ class Interpreter(expr.Visitor, stmt.Visitor):
         print(str(value))
 
     def visit_function_stmt(self, statement: stmt.Function) -> None:
-        function = LoxFunction(statement, self.environment)
+        function = LoxFunction(statement, self.environment, False)
         self.environment.define(statement.name.lexeme, function)
 
     def visit_assert_stmt(self, statement: stmt.Assert) -> None:
@@ -164,6 +166,23 @@ class Interpreter(expr.Visitor, stmt.Visitor):
 
     def visit_variable_expr(self, expression: expr.Variable) -> LoxObject:
         return self.look_up_variable(expression.name, expression)
+
+    def visit_get_expr(self, expression: expr.Get) -> object:
+        obj = self.evaluate(expression.object)
+        if isinstance(obj, LoxInstance):
+            return obj.get_attr(expression.name)
+        raise LoxRuntimeError(expression.name, "Only class instances have properties.")
+
+    def visit_set_expr(self, expression: expr.Set) -> object:
+        obj = self.evaluate(expression.object)
+        if not isinstance(obj, LoxInstance):
+            raise LoxRuntimeError(expression.name, "Only instances have fields.")
+        value = self.evaluate(expression.value)
+        obj.set_attr(expression.name, value)
+        return value
+
+    def visit_this_expr(self, expression: expr.This) -> object:
+        return self.look_up_variable(expression.keyword, expression)
 
     def look_up_variable(self, name: Token, expression: expr.Expr) -> LoxObject:
         distance = self.locals.get(expression, None)
@@ -194,6 +213,16 @@ class Interpreter(expr.Visitor, stmt.Visitor):
             self.globals.assign(expression.name, value)
 
         return value
+
+    def visit_class_stmt(self, statement: stmt.Class) -> None:
+        self.environment.define(statement.name.lexeme, None)
+        methods = {}
+        for method in statement.methods:
+            function = LoxFunction(method, self.environment, method.name.lexeme == "init")
+            methods[method.name.lexeme] = function
+        
+        klass = LoxClass(statement.name.lexeme, methods)
+        self.environment.assign(statement.name, klass)
 
     def visit_call_expr(self, expression: expr.Call):
         callee = self.evaluate(expression.callee)

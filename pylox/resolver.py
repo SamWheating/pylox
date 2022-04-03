@@ -8,6 +8,13 @@ class FunctionType(Enum):
 
     NONE = auto()
     FUNCTION = auto()
+    METHOD = auto()
+    INITIALIZER = auto()
+
+class ClassType(Enum):
+
+    NONE = auto()
+    CLASS = auto()
 
 class Resolver(expr.Visitor, stmt.Visitor):
 
@@ -16,6 +23,7 @@ class Resolver(expr.Visitor, stmt.Visitor):
         self.runtime = runtime
         self.scopes = []
         self.current_function = FunctionType.NONE
+        self.current_class = ClassType.NONE
 
     def visit_block_stmt(self, statement: stmt.Block) -> None:
         self.begin_scope()
@@ -98,7 +106,43 @@ class Resolver(expr.Visitor, stmt.Visitor):
             self.runtime.error(statement.keyword.line, "Can't return from top-level code.")
         
         if statement.value is not None:
+            if self.current_function == FunctionType.INITIALIZER:
+                self.runtime.error(statement.keyword.line, "Can't return a value from an initialzier.")
             self.resolve(statement.value)
+
+    def visit_class_stmt(self, statement: stmt.Class) -> None:
+        enclosing_class = self.current_class
+        self.current_class = ClassType.CLASS
+        
+        self.declare(statement.name)
+        self.define(statement.name)
+
+        self.begin_scope()
+        self.scopes[-1]["this"] = True
+
+        for method in statement.methods:
+            declaration = FunctionType.METHOD
+            if method.name.lexeme == "init":
+                declaration = FunctionType.INITIALIZER
+            self.resolve_function(method, declaration)
+
+        self.end_scope()
+        self.current_class = enclosing_class
+
+    def visit_get_expr(self, expression: expr.Get) -> None:
+        self.resolve(expression.object)
+
+    def visit_set_expr(self, expression: expr.Set) -> None:
+        self.resolve(expression.value)
+        self.resolve(expression.object)
+
+    def visit_this_expr(self, expression: expr.This) -> None:
+        
+        if self.current_class != ClassType.CLASS:
+            self.runtime.error(expression.keyword.line, "Can't use 'this' outside of a class.")
+            return
+        
+        self.resolve_local(expression, expression.keyword)
 
     def visit_while_stmt(self, statement: stmt.While) -> None:
         self.resolve(statement.condition)

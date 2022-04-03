@@ -70,12 +70,15 @@ if __name__ == "__main__":
     # TODO: expand these lists to include proper type annotations
     define_ast(output_dir, "Expr", [
         "Binary   : left, operator, right",
+        "Get      : object, name",
         "Grouping : expression",
         "Literal  : value",
         "Variable : name",
         "Unary    : operator, right",
+        "This     : keyword",
         "Assign   : name, value",
         "Logical  : left, operator, right",
+        "Set      : object, name, value",
         "Call     : callee, paren, arguments",
     ])
 
@@ -86,6 +89,7 @@ if __name__ == "__main__":
         "Print        : expression",
         "Var          : name, initializer",
         "Block        : statements",
+        "Class        : name, methods",
         "While        : condition, body",
         "Assert       : assert_token, expression",
         "Return       : keyword, value",

@@ -20,6 +20,8 @@ class Parser:
 
     def declaration(self) -> stmt.Stmt:
         try:
+            if self.match(TokenType.CLASS):
+                return self.class_declaration()
             if self.match(TokenType.FUN):
                 return self.function("function")
             if self.match(TokenType.VAR):
@@ -28,6 +30,16 @@ class Parser:
         except ParseError:
             self.synchronize()
             return None
+
+    def class_declaration(self) -> stmt.Stmt:
+        name = self.consume(TokenType.IDENTIFIER, "Expect class name.")
+        self.consume(TokenType.LEFT_BRACE, "Expect '{' before class body.")
+        methods = []
+        while not self.check(TokenType.RIGHT_BRACE) and not self.is_at_end():
+            methods.append(self.function("method"))
+        self.consume(TokenType.RIGHT_BRACE, "expect '}' after class body.")
+
+        return stmt.Class(name, methods)
 
     def expression(self) -> expr.Expr:
         return self.assignment()
@@ -79,7 +91,8 @@ class Parser:
             if isinstance(expression, expr.Variable):
                 name = expression.name
                 return expr.Assign(name, value)
-
+            elif isinstance(expression, expr.Get):
+                return expr.Set(expression.object, expression.name, value)
             self.error(equals, "Invalid assignment target")
         
         return expression
@@ -273,6 +286,9 @@ class Parser:
         if self.match(TokenType.NUMBER, TokenType.STRING):
             return expr.Literal(self.previous().literal)
 
+        if self.match(TokenType.THIS):
+            return expr.This(self.previous())
+
         if self.match(TokenType.IDENTIFIER):
             return expr.Variable(self.previous())
 
@@ -289,6 +305,9 @@ class Parser:
         while True:
             if self.match(TokenType.LEFT_PAREN):
                 expression = self.finish_call(expression)
+            elif self.match(TokenType.DOT):
+                name = self.consume(TokenType.IDENTIFIER, "Expect Property name after '.'.")
+                expression = expr.Get(expression, name)
             else:
                 break
         

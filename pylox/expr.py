@@ -6,6 +6,9 @@ class Visitor(ABC):
     def visit_binary_expr(self, expr):
         raise NotImplementedError()
 
+    def visit_get_expr(self, expr):
+        raise NotImplementedError()
+
     def visit_grouping_expr(self, expr):
         raise NotImplementedError()
 
@@ -18,10 +21,16 @@ class Visitor(ABC):
     def visit_unary_expr(self, expr):
         raise NotImplementedError()
 
+    def visit_this_expr(self, expr):
+        raise NotImplementedError()
+
     def visit_assign_expr(self, expr):
         raise NotImplementedError()
 
     def visit_logical_expr(self, expr):
+        raise NotImplementedError()
+
+    def visit_set_expr(self, expr):
         raise NotImplementedError()
 
     def visit_call_expr(self, expr):
@@ -41,6 +50,16 @@ class Binary(Expr):
 
     def accept(self, visitor: Visitor):
         return visitor.visit_binary_expr(self)
+
+
+class Get(Expr):
+
+    def __init__(self, object, name):
+        self.object = object
+        self.name = name
+
+    def accept(self, visitor: Visitor):
+        return visitor.visit_get_expr(self)
 
 
 class Grouping(Expr):
@@ -80,6 +99,15 @@ class Unary(Expr):
         return visitor.visit_unary_expr(self)
 
 
+class This(Expr):
+
+    def __init__(self, keyword):
+        self.keyword = keyword
+
+    def accept(self, visitor: Visitor):
+        return visitor.visit_this_expr(self)
+
+
 class Assign(Expr):
 
     def __init__(self, name, value):
@@ -99,6 +127,17 @@ class Logical(Expr):
 
     def accept(self, visitor: Visitor):
         return visitor.visit_logical_expr(self)
+
+
+class Set(Expr):
+
+    def __init__(self, object, name, value):
+        self.object = object
+        self.name = name
+        self.value = value
+
+    def accept(self, visitor: Visitor):
+        return visitor.visit_set_expr(self)
 
 
 class Call(Expr):
