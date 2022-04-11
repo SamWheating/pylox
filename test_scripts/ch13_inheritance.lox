@@ -1,0 +1,35 @@
+// Test basic inheritance
+
+class Dog{
+    bark(){
+        return "Bark!";
+    }
+}
+
+class Beagle < Dog{}
+
+assert Beagle().bark() == "Bark!";
+
+// Test that subclass methods override parent class correctly
+
+class Chihuahua < Dog{
+    bark(){
+        return "Arf!";
+    }
+}
+
+assert Chihuahua().bark() == "Arf!";
+
+class Terrier < Dog {
+
+    bark(){
+        return "Arf!";
+    }
+
+    yell(){
+        return super.bark() + " " + super.bark() + " " + super.bark();
+    }
+}
+
+assert Terrier().bark() == "Arf!";
+assert Terrier().yell() == "Bark! Bark! Bark!";

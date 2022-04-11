@@ -24,6 +24,9 @@ class Visitor(ABC):
     def visit_this_expr(self, expr):
         raise NotImplementedError()
 
+    def visit_super_expr(self, expr):
+        raise NotImplementedError()
+
     def visit_assign_expr(self, expr):
         raise NotImplementedError()
 
@@ -106,6 +109,16 @@ class This(Expr):
 
     def accept(self, visitor: Visitor):
         return visitor.visit_this_expr(self)
+
+
+class Super(Expr):
+
+    def __init__(self, keyword, method):
+        self.keyword = keyword
+        self.method = method
+
+    def accept(self, visitor: Visitor):
+        return visitor.visit_super_expr(self)
 
 
 class Assign(Expr):

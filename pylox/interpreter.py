@@ -215,14 +215,42 @@ class Interpreter(expr.Visitor, stmt.Visitor):
         return value
 
     def visit_class_stmt(self, statement: stmt.Class) -> None:
+        superclass = None
+        if statement.superclass is not None:
+            superclass = self.evaluate(statement.superclass)
+            if not isinstance(superclass, LoxClass):
+                raise LoxRuntimeError(statement.superclass.name, "Superclass must be a class.")
+
         self.environment.define(statement.name.lexeme, None)
+
+        if statement.superclass is not None:
+            self.environment = Environment(self.environment)
+            self.environment.define("super", superclass)
+
         methods = {}
         for method in statement.methods:
             function = LoxFunction(method, self.environment, method.name.lexeme == "init")
             methods[method.name.lexeme] = function
         
-        klass = LoxClass(statement.name.lexeme, methods)
+        klass = LoxClass(statement.name.lexeme, superclass, methods)
+        
+        if superclass is not None:
+            self.environment = self.environment.enclosing
+
         self.environment.assign(statement.name, klass)
+
+    def visit_super_expr(self, expression: expr.Super) -> None:
+        distance = self.locals.get(expression)
+        superclass = self.environment.get_at(distance, "super")
+
+        # bind uses of 'super' to the defining class's superclass
+        parent_object = self.environment.get_at(distance-1, "this")
+        method = superclass.find_method(expression.method.lexeme)
+        
+        if method is None:
+            raise LoxRuntimeError(expression.method, f"Undefined property '{expr.method.lexeme}'.")
+        
+        return method.bind(parent_object)
 
     def visit_call_expr(self, expression: expr.Call):
         callee = self.evaluate(expression.callee)
