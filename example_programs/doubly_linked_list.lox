@@ -1,0 +1,84 @@
+class Node{
+    init(prev, next, val){
+        this.next = next;
+        this.prev = prev;
+        this.val = val;
+    }
+}
+
+class DoublyLinkedList{
+
+    init(){
+        this.head = nil;
+        this.tail = nil;
+    }
+
+    append(val){
+
+        var newNode = Node(this.tail, nil, val);
+
+        if(this.tail == nil){
+            this.head = newNode;
+            this.tail = newNode;
+        } else {
+            this.tail.next = newNode;
+            this.tail = newNode;
+        }
+    }
+
+    remove(idx){
+        var cursor = this.head;
+        for(var i = 0; i < idx; i = i + 1){
+            if(cursor.next == nil){
+                return nil;
+            }
+            cursor = cursor.next;
+        }
+        if(cursor.prev != nil){
+            cursor.prev.next = cursor.next;
+        }
+        if(cursor.next != nil){
+            cursor.next.prev = cursor.prev;
+        }
+    }
+
+    get(idx){
+        var cursor = this.head;
+        for(var i = 0; i < idx; i = i + 1){
+            if(cursor.next == nil){
+                return nil;
+            }
+            cursor = cursor.next;
+        }
+        return cursor.val;
+    }
+
+    len(){
+        var cursor = this.head;
+        var length = 0;
+        while(cursor != nil){
+            length = length + 1;
+            cursor = cursor.next;
+        }
+        return length;
+    }
+}
+
+var myList = DoublyLinkedList();
+myList.append(0);
+
+assert myList.head.val == 0;
+assert myList.tail.val == 0;
+assert myList.len() == 1;
+
+for(var i = 1; i <= 10; i = i + 1){
+    myList.append(i);
+}
+
+assert myList.len() == 11;
+assert myList.get(8) == 8;
+assert myList.get(3) == 3;
+
+myList.remove(5);
+assert myList.get(5) == 6;
+assert myList.len() == 10;
