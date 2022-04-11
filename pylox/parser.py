@@ -263,7 +263,7 @@ class Parser:
 
         expression = self.unary()
 
-        while self.match(TokenType.SLASH, TokenType.STAR):
+        while self.match(TokenType.SLASH, TokenType.STAR, TokenType.PERCENT):
             operator = self.previous()
             right = self.unary()
             expression = expr.Binary(expression, operator, right)

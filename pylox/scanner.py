@@ -69,6 +69,8 @@ class Scanner:
                 self.add_token(TokenType.SEMICOLON)
             case "*":
                 self.add_token(TokenType.STAR)
+            case "%":
+                self.add_token(TokenType.PERCENT)
 
             case "!":
                 self.add_token(TokenType.BANG_EQUAL) if self.match(

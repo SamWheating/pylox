@@ -191,7 +191,7 @@ class Resolver(expr.Visitor, stmt.Visitor):
         self.resolve(expression.right)
 
     def visit_unary_expr(self, expression: expr.Unary) -> None:
-        self.resolve(expr.right)
+        self.resolve(expression.right)
 
     def declare(self, name: Token) -> None:
         if not self.scopes:

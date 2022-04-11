@@ -1,0 +1,4 @@
+assert 10 % 2 == 0;
+assert 100 % 12 ==  4;
+assert 10 % -3 == -2;
+assert -10 % 3 == 2;

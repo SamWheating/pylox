@@ -118,6 +118,11 @@ class Interpreter(expr.Visitor, stmt.Visitor):
                 if right == 0:
                     raise LoxRuntimeError(expr.operator, "Runtime Error: Cannot Divide by zero.")
                 return float(left) / float(right)
+            case TokenType.PERCENT:
+                self.check_number_operands(expr.operator, left, right)
+                if right == 0:
+                    raise LoxRuntimeError(expr.operator, "Runtime Error: Cannot Modulo by zero.")
+                return float(left) % float(right)
             case TokenType.STAR:
                 self.check_number_operands(expr.operator, left, right)
                 return float(left) * float(right)
