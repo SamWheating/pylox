@@ -24,16 +24,31 @@ This will evaluate the expression and raise an error if it evaluates to somethin
 
 For example, in `test_scripts/bonus_assertions.lox`:
 ```
-// count by twos from 1 to 128, then fail.
+// prints powers of 2 from 2 to 32, then raise an assertion error.
 var a = 1;
 for (;;){
     a = a * 2;
-    assert a != 128;
+    print a; 
+    assert a != 32;
 }
 ```
 
 ```
 > pylox test_scripts/bonus_assertions.lox
+2.0
+4.0
+8.0
+16.0
+32.0
 Assertion Error on line 5: 
- ->      assert a != 128;
+ ->      assert a != 32;
+```
+
+### 2) Modulo operator (`%`)
+
+This was provided as an additional exercise in the book.
+```
+> pylox
+pylox > print 12 % 5;
+2.0
 ```

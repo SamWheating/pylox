@@ -30,7 +30,7 @@ class Lox:
     def run_prompt(self):
 
         while True:
-            line = input("> ")
+            line = input("pylox > ")
             if line in ["", "exit"]:
                 break
             self.source = line
