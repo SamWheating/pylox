@@ -160,7 +160,7 @@ class Resolver(expr.Visitor, stmt.Visitor):
 
     def visit_this_expr(self, expression: expr.This) -> None:
         
-        if self.current_class != ClassType.CLASS:
+        if self.current_class == ClassType.NONE:
             self.runtime.error(expression.keyword.line, "Can't use 'this' outside of a class.")
             return
         
