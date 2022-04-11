@@ -17,7 +17,7 @@ I've added some additional features where I thought they would be useful. These 
 I find these really useful for writing really lazy tests. They work identically to python:
 
 ```
-assert <expression>
+assert <expression>;
 ```
 
 This will evaluate the expression and raise an error if it evaluates to something false-y (in Lox, this is only `false` or `nil`). It will also print the line number and the actual line of code which includes the `assert` statement:
